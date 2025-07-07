@@ -1,26 +1,37 @@
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
-const prettierConfig = require('eslint-config-prettier'); // 1. Prettier 설정 가져오기
+const prettierConfig = require('eslint-config-prettier');
+const typescriptEslint = require('@typescript-eslint/eslint-plugin');
+const typescriptParser = require('@typescript-eslint/parser');
 
 module.exports = defineConfig([
   ...expoConfig,
 
-  // 2. Prettier와의 충돌 방지 설정을 **배열의 맨 마지막에** 추가합니다.
-  //    이렇게 해야 expoConfig의 규칙을 덮어쓸 수 있습니다.
-  prettierConfig,
-
+  // TypeScript 파일에 대한 설정
   {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescriptEslint,
+    },
     rules: {
-      // 예: 사용하지 않는 변수가 있을 경우 에러 대신 경고를 표시합니다.
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_' },
-      ],
-      // 기타 필요한 규칙을 여기에 추가하세요.
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
 
-  // 4. 무시할 파일이나 폴더를 설정합니다.
+  // Prettier 설정은 마지막에
+  prettierConfig,
+
+  // 무시할 파일들
   {
     ignores: ['dist/*', '.expo/*', 'node_modules/*'],
   },
